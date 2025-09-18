@@ -80,6 +80,3 @@ If everything runs correctly, Flask will start the server at:
 
 ---
 
-👨‍💻 **Author:** [Your Name]  
-📅 **Status:** Ongoing Development
-
