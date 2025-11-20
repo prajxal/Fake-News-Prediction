@@ -94,18 +94,123 @@ def health():
 
 @app.route('/predict', methods=['POST'])
 def predict():
+    """
+    Predict whether news text is fake or real.
+    
+    Request JSON:
+        {
+            "text": "news article text to analyze"
+        }
+    
+    Response JSON:
+        {
+            "label": 0 or 1,
+            "label_name": "real" or "fake",
+            "probabilities": [prob_real, prob_fake],
+            "confidence": float (0-1)
+        }
+    """
     data = request.get_json()
+    
+    # Validate request
     if not data or 'text' not in data:
         return jsonify({'error': "Request JSON must include 'text' field."}), 400
-    texts = [data['text']]
-    preds = pipeline.predict(texts)
-    probs = pipeline.predict_proba(texts).tolist() if hasattr(pipeline, 'predict_proba') else None
-    label = int(preds[0])
-    return jsonify({
-        'label': label,
-        'label_name': 'fake' if label == 1 else 'real',
-        'probabilities': probs[0] if probs else None
-    })
+    
+    text = data['text']
+    
+    # Validate text is not empty
+    if not text or not text.strip():
+        return jsonify({'error': "Text field cannot be empty."}), 400
+    
+    # Optional: limit text length to prevent abuse
+    MAX_TEXT_LENGTH = 10000
+    if len(text) > MAX_TEXT_LENGTH:
+        return jsonify({'error': f"Text exceeds maximum length of {MAX_TEXT_LENGTH} characters."}), 400
+    
+    try:
+        texts = [text]
+        preds = pipeline.predict(texts)
+        probs = pipeline.predict_proba(texts).tolist() if hasattr(pipeline, 'predict_proba') else None
+        
+        label = int(preds[0])
+        probabilities = probs[0] if probs else None
+        
+        # Calculate confidence as the maximum probability
+        confidence = max(probabilities) if probabilities else None
+        
+        return jsonify({
+            'label': label,
+            'label_name': 'fake' if label == 1 else 'real',
+            'probabilities': probabilities,
+            'confidence': confidence
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': f"Prediction failed: {str(e)}"}), 500
+
+
+@app.route('/predict/batch', methods=['POST'])
+def predict_batch():
+    """
+    Predict multiple news articles at once.
+    
+    Request JSON:
+        {
+            "texts": ["article 1", "article 2", ...]
+        }
+    
+    Response JSON:
+        {
+            "predictions": [
+                {
+                    "label": 0 or 1,
+                    "label_name": "real" or "fake",
+                    "probabilities": [prob_real, prob_fake],
+                    "confidence": float
+                },
+                ...
+            ]
+        }
+    """
+    data = request.get_json()
+    
+    if not data or 'texts' not in data:
+        return jsonify({'error': "Request JSON must include 'texts' field."}), 400
+    
+    texts = data['texts']
+    
+    if not isinstance(texts, list):
+        return jsonify({'error': "'texts' must be an array."}), 400
+    
+    if len(texts) == 0:
+        return jsonify({'error': "'texts' array cannot be empty."}), 400
+    
+    # Limit batch size
+    MAX_BATCH_SIZE = 100
+    if len(texts) > MAX_BATCH_SIZE:
+        return jsonify({'error': f"Batch size exceeds maximum of {MAX_BATCH_SIZE}."}), 400
+    
+    try:
+        preds = pipeline.predict(texts)
+        probs = pipeline.predict_proba(texts).tolist() if hasattr(pipeline, 'predict_proba') else None
+        
+        predictions = []
+        for i, pred in enumerate(preds):
+            label = int(pred)
+            probabilities = probs[i] if probs else None
+            confidence = max(probabilities) if probabilities else None
+            
+            predictions.append({
+                'label': label,
+                'label_name': 'fake' if label == 1 else 'real',
+                'probabilities': probabilities,
+                'confidence': confidence
+            })
+        
+        return jsonify({'predictions': predictions}), 200
+        
+    except Exception as e:
+        return jsonify({'error': f"Batch prediction failed: {str(e)}"}), 500
 
 
 if __name__ == '__main__':
