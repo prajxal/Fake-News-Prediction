@@ -73,10 +73,4 @@ If everything runs correctly, Flask will start the server at:
 
 ---
 
-## 🚀 Future Plans
-- Improve the Fake News detection model.
-- Enhance UI/UX.
-- Deploy on cloud with production-ready setup.
-
----
 
