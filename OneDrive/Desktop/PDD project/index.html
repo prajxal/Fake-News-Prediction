@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake News Detector - AI Powered Verification</title>
+    <link rel="stylesheet" href="style-fakenews.css">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="#home" class="logo-link">
+                <svg class="logo-svg" viewBox="0 0 100 100">
+                    <polygon points="50,10 20,50 50,90 80,50" fill="none" stroke="url(#logoGrad)" stroke-width="3"/>
+                </svg>
+                <span class="logo-text">Fake News Detector</span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a class="nav-link active" href="#home">Home</a></li>
+                <li><a class="nav-link" href="#collections">Case Studies</a></li>
+                <li><a class="nav-link" href="#featured">How it Works</a></li>
+                <li><a class="nav-link" href="#contact">Report News</a></li>
+                <li><a class="nav-cta" href="#contact">Scan Now</a></li>
+            </ul>
+
+            <div class="menu-toggle" id="menuToggle">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MOBILE NAV -->
+    <div class="mobile-nav" id="mobileNav">
+        <ul class="mobile-nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#collections">Case Studies</a></li>
+            <li><a href="#featured">How It Works</a></li>
+            <li><a href="#contact">Report News</a></li>
+        </ul>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero" id="home">
+        <div class="hero-bg"></div>
+
+        <div class="hero-container">
+            <div class="hero-left">
+                <div class="hero-badge">AI Detection • Real-Time</div>
+
+                <h1 class="hero-title">
+                    <span class="line"><span>Fight</span></span>
+                    <span class="line"><span>Fake <span class="accent">News</span></span></span>
+                    <span class="line"><span>With AI</span></span>
+                </h1>
+
+                <p class="hero-description">
+                    Scan articles, posts, videos, and claims with our AI-powered Fake News Detector.
+                    Get instant credibility scores, misinformation breakdown, and trusted sources.
+                </p>
+
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">99%</span>
+                        <span class="stat-label">Detection Accuracy</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">2 sec</span>
+                        <span class="stat-label">Scan Speed</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">1M+</span>
+                        <span class="stat-label">Scans Completed</span>
+                    </div>
+                </div>
+
+                <div class="cta-group">
+                    <a href="#collections" class="cta-button primary">View Case Studies</a>
+                    <a href="#featured" class="cta-button outline">How Detection Works</a>
+                </div>
+            </div>
+
+            <div class="hero-right">
+                <div class="hero-image-wrapper">
+                    <div class="hero-carousel">
+                        <div class="carousel-slide active">
+                            <img src="images/fn-hero-01.jpg" alt="AI News Analysis">
+                        </div>
+                        <div class="carousel-slide">
+                            <img src="images/fn-hero-02.jpg" alt="Cybersecurity Theme">
+                        </div>
+                        <div class="carousel-slide">
+                            <img src="images/fn-hero-03.jpg" alt="Truth Verification">
+                        </div>
+                        <div class="carousel-overlay"></div>
+
+                        <div class="carousel-indicators">
+                            <span class="indicator active" data-slide="0"></span>
+                            <span class="indicator" data-slide="1"></span>
+                            <span class="indicator" data-slide="2"></span>
+                        </div>
+                    </div>
+
+                    <div class="floating-tags">
+                        <div class="tag">AI Verified</div>
+                        <div class="tag">Deep Fake Scan</div>
+                        <div class="tag">Source Tracking</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-indicator"><span></span></div>
+    </section>
+
+    <!-- CASE STUDIES -->
+    <section class="collections" id="collections">
+        <div class="section-header">
+            <h2 class="section-title">Recent Fake News Cases</h2>
+            <p class="section-subtitle">Verified using our AI system</p>
+        </div>
+
+        <div class="category-tabs">
+            <button class="tab-btn active" data-category="all">All</button>
+            <button class="tab-btn" data-category="politics">Politics</button>
+            <button class="tab-btn" data-category="health">Health</button>
+            <button class="tab-btn" data-category="social">Social Media</button>
+            <button class="tab-btn" data-category="deepfake">Deepfakes</button>
+        </div>
+
+        <div class="grid" id="collectionsGrid">
+
+            <div class="collection-card" data-category="politics">
+                <div class="collection-thumbnail">
+                    <img src="images/fn-case1.jpg">
+                </div>
+                <div class="card-content">
+                    <span class="card-badge">False</span>
+                    <h3 class="card-title">Election Fraud Claim</h3>
+                    <p class="card-subtitle">Politics</p>
+                    <p class="card-price">Credibility: 12%</p>
+                </div>
+            </div>
+
+            <div class="collection-card" data-category="health">
+                <div class="collection-thumbnail">
+                    <img src="images/fn-case2.jpg">
+                </div>
+                <div class="card-content">
+                    <span class="card-badge">Misleading</span>
+                    <h3 class="card-title">Vaccine Hoax Post</h3>
+                    <p class="card-subtitle">Health</p>
+                    <p class="card-price">Credibility: 28%</p>
+                </div>
+            </div>
+
+            <div class="collection-card" data-category="social">
+                <div class="collection-thumbnail">
+                    <img src="images/fn-case3.jpg">
+                </div>
+                <div class="card-content">
+                    <span class="card-badge">Manipulated</span>
+                    <h3 class="card-title">Celebrity Fake Statement</h3>
+                    <p class="card-subtitle">Social Media</p>
+                    <p class="card-price">Credibility: 35%</p>
+                </div>
+            </div>
+
+            <div class="collection-card" data-category="deepfake">
+                <div class="collection-thumbnail">
+                    <img src="images/fn-case4.jpg">
+                </div>
+                <div class="card-content">
+                    <span class="card-badge">Deepfake</span>
+                    <h3 class="card-title">Fake Speech Video</h3>
+                    <p class="card-subtitle">AI Deepfake</p>
+                    <p class="card-price">Credibility: 9%</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="featured" id="featured">
+        <div class="featured-container">
+
+            <div class="featured-hero">
+                <div class="featured-content">
+
+                    <span class="label">AI Verification Pipeline</span>
+                    <h2>How Our Fake News Detector Works</h2>
+
+                    <p>Our system uses neural network–based classification, cross-source referencing,
+                    image forgery detection, and deepfake identification to detect misinformation
+                    with maximum precision.</p>
+
+                    <div class="feature-highlights">
+                        <div class="highlight-item">
+                            <div class="highlight-icon">🔍</div>
+                            <div class="highlight-title">Source Tracking</div>
+                            <div class="highlight-desc">We trace original sources and match them with 1000+ verified databases.</div>
+                        </div>
+
+                        <div class="highlight-item">
+                            <div class="highlight-icon">🤖</div>
+                            <div class="highlight-title">AI Analysis</div>
+                            <div class="highlight-desc">Machine learning models identify patterns of misinformation.</div>
+                        </div>
+
+                        <div class="highlight-item">
+                            <div class="highlight-icon">⚠️</div>
+                            <div class="highlight-title">Risk Scoring</div>
+                            <div class="highlight-desc">Every claim receives an instant credibility and risk score.</div>
+                        </div>
+                    </div>
+
+                    <a href="#contact" class="feature-cta">Scan Your News</a>
+                </div>
+
+                <div class="featured-image-section">
+                    <div class="featured-image-grid">
+                        <div class="featured-img"><img src="images/fn-work-01.jpg"></div>
+                        <div class="featured-img"><img src="images/fn-work-02.jpg"></div>
+                        <div class="featured-img"><img src="images/fn-work-03.jpg"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TESTIMONIALS -->
+            <div class="testimonials">
+                <div class="testimonials-header">
+                    <h3>User Feedback</h3>
+                    <p class="section-subtitle">Trusted worldwide</p>
+                </div>
+
+                <div class="testimonials-grid">
+                    <div class="testimonial-card">
+                        <div class="testimonial-rating">★★★★★</div>
+                        <div class="testimonial-quote">"Accurate, fast, and critical for checking viral posts."</div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">A</div>
+                            <div>
+                                <h4>Aarav Patel</h4>
+                                <p>Data Analyst</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div class="testimonial-rating">★★★★★</div>
+                        <div class="testimonial-quote">"Deepfake detection is very impressive. Saved me from believing fake content!"</div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">S</div>
+                            <div>
+                                <h4>Sonia Mehra</h4>
+                                <p>Journalist</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div class="testimonial-rating">★★★★★</div>
+                        <div class="testimonial-quote">"We use it in our college for media literacy. Highly recommended!"</div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">M</div>
+                            <div>
+                                <h4>Mohit Sharma</h4>
+                                <p>Professor</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="contact" id="contact">
+        <div class="contact-container">
+
+            <div class="contact-header">
+                <h2 class="section-title">Report Fake News</h2>
+                <p class="section-subtitle">Send us suspicious URLs or media</p>
+            </div>
+
+            <div class="contact-content">
+                <div class="contact-form-wrapper">
+
+                    <form id="contactForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <input type="text" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>News URL or Source</label>
+                            <input type="text" required placeholder="Paste link here...">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Details</label>
+                            <textarea placeholder="Describe why you think it's fake..."></textarea>
+                        </div>
+
+                        <button type="submit" class="form-submit">Submit Report</button>
+                    </form>
+
+                </div>
+
+                <div class="contact-info">
+                    <div class="info-item">
+                        <div class="info-icon">🌐</div>
+                        <div>
+                            <h3>Global Support</h3>
+                            <p>Email: <a href="#">support@fakenewsdetector.ai</a></p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">📞</div>
+                        <div>
+                            <h3>Helpline</h3>
+                            <p>24/7 Verification Support</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">🚨</div>
+                        <div>
+                            <h3>Emergency Reporting</h3>
+                            <p>Flag viral misinformation immediately</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="map-section">
+                <div class="map-container">
+                    <iframe src="https://www.google.com/maps/embed?..." loading="lazy"></iframe>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>Fake News Detector</h3>
+                <p>AI-powered tools to fight misinformation, protect users, and ensure digital truth.</p>
+            </div>
+
+            <div class="footer-column">
+                <h4>Tools</h4>
+                <ul>
+                    <li><a href="#">AI Scanner</a></li>
+                    <li><a href="#">Deepfake Analyzer</a></li>
+                    <li><a href="#">Fact Check Engine</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h4>Help</h4>
+                <ul>
+                    <li><a href="#">Report Fake News</a></li>
+                    <li><a href="#">User Guide</a></li>
+                    <li><a href="#">Support</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Privacy</a></li>
+                    <li><a href="#">Terms</a></li>
+                    <li><a href="#">AI Ethics</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2025 Fake News Detector. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="templatemo-noir-scripts.js"></script>
+</body>
+</html>
