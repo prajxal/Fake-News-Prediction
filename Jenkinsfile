@@ -2,11 +2,12 @@
 pipeline {
   agent any
   environment {
-    FRONTEND_DIR = "frontend"
-    DOCKER_SSH = "ssh://ubuntu@65.0.73.116"
-    SSH_CRED_ID = "65.0.73.116" // replace with your credential id in Jenkins
-    APP_NAME = "fake-frontend"
-  }
+  FRONTEND_DIR = "frontend"
+  DOCKER_SSH = "ssh://ubuntu@65.0.73.116"
+  SSH_CRED_ID = "docker-ec2-key"   // must match the Jenkins credential ID
+  APP_NAME = "fake-frontend"
+}
+
   stages {
     stage('Checkout') {
       steps {
