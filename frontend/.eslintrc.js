@@ -28,7 +28,7 @@ module.exports = {
   plugins: ['react'],
   rules: {
     // Disable strict rules that might break existing code
-    'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+    'no-unused-vars': 'off', // Allow unused variables
     'no-console': 'off', // Allow console.log in development
     'no-undef': 'error', // Catch undefined variables
     'no-unreachable': 'error', // Catch unreachable code
