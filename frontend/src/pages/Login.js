@@ -71,7 +71,7 @@ const Login = () => {
           </button>
         </form>
         <p style={{ marginTop: '15px', textAlign: 'center' }}>
-          Don't have an account? <Link to="/register">Register here</Link>
+          {"Don't have an account?"} <Link to="/register">Register here</Link>
         </p>
       </div>
     </div>
