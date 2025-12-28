@@ -1,24 +1,34 @@
-# Use a slim python base
-FROM python:3.10-slim
+# Backend Dockerfile
+# Multi-stage build for optimized production image
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-# default port for container (override if you want)
-ENV PORT=8080
+# Stage 1: Build
+FROM node:18-alpine AS builder
+
 WORKDIR /app
 
-# Copy requirements first for caching
-COPY backend/requirements.txt .
+# Copy package files
+COPY package*.json ./
 
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+# Install dependencies
+RUN npm ci --only=production
 
-# Copy backend code
-COPY backend/ ./backend
-WORKDIR /app/backend
+# Stage 2: Production
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy dependencies from builder
+COPY --from=builder /app/node_modules ./node_modules
+
+# Copy application code
+COPY . .
 
 # Expose port
-EXPOSE ${PORT}
+EXPOSE 5000
 
-# Run with gunicorn; change "app:app" if your module/app object differs
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:8080", "--workers", "2"]
+# Set environment to production
+ENV NODE_ENV=production
+
+# Start server
+CMD ["node", "src/server.js"]
+
