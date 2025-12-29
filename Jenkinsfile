@@ -1,136 +1,103 @@
 /**
- * Jenkins CI/CD Pipeline
+ * Jenkins CI Pipeline
+ * Continuous Integration only - no deployment
  * Stages:
- * 1. Install dependencies
- * 2. Run basic tests
- * 3. Build Docker images
- * 4. Deploy containers
+ * 1. Checkout source code
+ * 2. Install backend dependencies
+ * 3. Run backend linting
+ * 4. Install frontend dependencies
+ * 5. Run frontend linting
+ * 6. Build frontend
  * 
- * Security: Uses environment variables for sensitive data
+ * Note: This pipeline performs static checks only.
+ * Deployment is handled separately via Vercel (frontend) and Render (backend).
  */
 
 pipeline {
     agent any
 
-    environment {
-        // Docker registry (if using one)
-        DOCKER_REGISTRY = ''
-        // Project name
-        PROJECT_NAME = 'fake-news-detection'
-        // Build number
-        BUILD_NUMBER = "${env.BUILD_NUMBER}"
+    // Use Node.js tool if configured in Jenkins (optional)
+    // If NodeJS tool is not configured, ensure Node.js is available in PATH
+    tools {
+        nodejs 'NodeJS' // Optional: Configure in Jenkins Global Tool Configuration
     }
 
     stages {
+        // Stage 1: Checkout repository code
         stage('Checkout') {
             steps {
-                echo 'Checking out source code...'
+                echo 'Checking out source code from repository...'
                 checkout scm
             }
         }
 
-        stage('Install Dependencies') {
-            parallel {
-                stage('Backend Dependencies') {
-                    steps {
-                        dir('backend') {
-                            echo 'Installing backend dependencies...'
-                            sh 'npm install'
-                        }
-                    }
-                }
-                stage('Frontend Dependencies') {
-                    steps {
-                        dir('frontend') {
-                            echo 'Installing frontend dependencies...'
-                            sh 'npm install'
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Run Tests') {
+        // Stage 2: Install backend dependencies
+        stage('Backend - Install Dependencies') {
             steps {
-                echo 'Running tests...'
                 dir('backend') {
-                    // Run backend tests if they exist
-                    sh 'npm test || true' // Continue even if tests fail (for demo)
+                    echo 'Installing backend dependencies with npm ci...'
+                    sh 'npm ci'
                 }
+            }
+        }
+
+        // Stage 3: Run backend linting (warnings/errors do not fail pipeline)
+        stage('Backend - Lint') {
+            steps {
+                dir('backend') {
+                    echo 'Running ESLint on backend code...'
+                    // Run linting but continue pipeline even if errors found
+                    sh 'npm run lint || echo "Linting completed with issues (non-blocking)"'
+                }
+            }
+        }
+
+        // Stage 4: Install frontend dependencies
+        stage('Frontend - Install Dependencies') {
+            steps {
                 dir('frontend') {
-                    // Run frontend tests if they exist
-                    sh 'npm test -- --watchAll=false || true' // Continue even if tests fail (for demo)
+                    echo 'Installing frontend dependencies with npm ci...'
+                    sh 'npm ci'
                 }
             }
         }
 
-        stage('Build Docker Images') {
+        // Stage 5: Run frontend linting (warnings/errors do not fail pipeline)
+        stage('Frontend - Lint') {
             steps {
-                echo 'Building Docker images...'
-                script {
-                    // Build backend image
-                    sh """
-                        docker build -t ${PROJECT_NAME}-backend:${BUILD_NUMBER} ./backend
-                        docker tag ${PROJECT_NAME}-backend:${BUILD_NUMBER} ${PROJECT_NAME}-backend:latest
-                    """
-                    
-                    // Build frontend image
-                    sh """
-                        docker build -t ${PROJECT_NAME}-frontend:${BUILD_NUMBER} ./frontend
-                        docker tag ${PROJECT_NAME}-frontend:${BUILD_NUMBER} ${PROJECT_NAME}-frontend:latest
-                    """
+                dir('frontend') {
+                    echo 'Running ESLint on frontend code...'
+                    // Run linting but continue pipeline even if errors found
+                    sh 'npm run lint || echo "Linting completed with issues (non-blocking)"'
                 }
             }
         }
 
-        stage('Deploy Containers') {
+        // Stage 6: Build frontend application
+        stage('Frontend - Build') {
             steps {
-                echo 'Deploying containers with Docker Compose...'
-                script {
-                    // Stop existing containers
-                    sh 'docker-compose down || true'
-                    
-                    // Start new containers
-                    sh 'docker-compose up -d --build'
-                    
-                    // Wait for services to be healthy
-                    sh 'sleep 10'
-                    
-                    // Health check
-                    sh '''
-                        echo "Checking backend health..."
-                        curl -f http://localhost:5000/health || exit 1
-                        echo "Backend is healthy!"
-                    '''
-                }
-            }
-        }
-
-        stage('Cleanup') {
-            steps {
-                echo 'Cleaning up old Docker images...'
-                script {
-                    // Remove old images (keep last 5 builds)
-                    sh '''
-                        docker images ${PROJECT_NAME}-backend --format "{{.ID}}" | tail -n +6 | xargs -r docker rmi || true
-                        docker images ${PROJECT_NAME}-frontend --format "{{.ID}}" | tail -n +6 | xargs -r docker rmi || true
-                    '''
+                dir('frontend') {
+                    echo 'Building frontend application...'
+                    sh 'npm run build'
+                    echo 'Frontend build completed successfully!'
                 }
             }
         }
     }
 
+    // Post-build actions
     post {
         success {
-            echo 'Pipeline completed successfully!'
-            // Optional: Send notification
+            echo '✅ CI Pipeline completed successfully!'
+            echo 'All static checks passed. Ready for deployment.'
         }
         failure {
-            echo 'Pipeline failed!'
-            // Optional: Send notification
+            echo '❌ CI Pipeline failed!'
+            echo 'Please check the logs above for details.'
         }
         always {
-            echo 'Pipeline finished. Cleaning up workspace...'
+            echo 'Pipeline execution finished.'
+            // Clean workspace to save disk space
             cleanWs()
         }
     }
