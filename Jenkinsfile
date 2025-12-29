@@ -7,12 +7,11 @@
  * 3. Run backend linting
  * 4. Install frontend dependencies
  * 5. Run frontend linting
- * 6. Build frontend
- * 7. Docker build validation (CI check only, no deployment)
+ * 6. Build frontend application
  * 
- * Note: This pipeline performs static checks and Docker validation only.
+ * Note: This pipeline performs static checks only.
  * Deployment is handled separately via Vercel (frontend) and Render (backend).
- * Docker is used for local development and CI validation, not production deployment.
+ * This pipeline is designed to run efficiently on low-resource EC2 instances.
  */
 
 pipeline {
@@ -38,6 +37,7 @@ pipeline {
             steps {
                 dir('backend') {
                     echo 'Installing backend dependencies with npm ci...'
+                    // Use --no-audit --no-fund to avoid CI stalls on low-resource systems
                     sh 'npm ci --no-audit --no-fund'
                 }
             }
@@ -59,6 +59,7 @@ pipeline {
             steps {
                 dir('frontend') {
                     echo 'Installing frontend dependencies with npm ci...'
+                    // Use --no-audit --no-fund to avoid CI stalls on low-resource systems
                     sh 'npm ci --no-audit --no-fund'
                 }
             }
@@ -85,28 +86,6 @@ pipeline {
                 }
             }
         }
-
-        // Stage 7: Docker - Build Validation (CI only, no deployment)
-        stage('Docker - Build Validation') {
-            steps {
-                echo 'Validating Docker image builds (CI check only)...'
-                script {
-                    // Build backend Docker image to validate Dockerfile
-                    dir('backend') {
-                        sh 'docker build -t fake-news-backend:ci-test .'
-                        echo 'Backend Docker image built successfully'
-                    }
-                    
-                    // Build frontend Docker image to validate Dockerfile
-                    dir('frontend') {
-                        sh 'docker build -t fake-news-frontend:ci-test .'
-                        echo 'Frontend Docker image built successfully'
-                    }
-                    
-                    echo 'Docker build validation completed (images not deployed)'
-                }
-            }
-        }
     }
 
     // Post-build actions
@@ -121,7 +100,7 @@ pipeline {
         }
         always {
             echo 'Pipeline execution finished.'
-            // Clean workspace to save disk space
+            // Clean workspace to save disk space on low-resource systems
             cleanWs()
         }
     }
