@@ -1,317 +1,259 @@
-# Fake News Detection Platform
+## Fake News Detection Platform
 
-A production-style Fake News Detection platform built with MongoDB, Node.js, React, featuring secure authentication, ML integration, and CI/CD using Jenkins and Docker.
+Modern web application for detecting and analysing potentially fake news articles, built with React, Node.js/Express, and MongoDB Atlas, with CI powered by GitHub Actions and Jenkins.
 
-## 🏗️ Architecture
+---
 
-### Tech Stack
-- **Backend**: Node.js + Express
-- **Database**: MongoDB with Mongoose
-- **Frontend**: React
-- **Authentication**: JWT + bcrypt
-- **DevOps**: Docker + Docker Compose + Jenkins
-- **ML**: Pre-trained model integration (HuggingFace/sklearn)
+## Project Overview
 
-### Project Structure
-```
+- **Goal**: Provide a demonstration-grade, production-style platform where users can:
+  - Register and authenticate securely.
+  - Submit news articles for analysis.
+  - View fake/real likelihood and confidence scores.
+  - Provide feedback on prediction results.
+- **Context**: Designed for academic evaluation and viva, with emphasis on:
+  - Clear separation of frontend, backend, and database.
+  - Secure authentication and authorization.
+  - Modern CI practices using GitHub Actions and Jenkins.
+
+---
+
+## Tech Stack
+
+- **Frontend**
+  - React (Create React App)
+  - React Router for client-side routing
+  - Axios for HTTP requests
+
+- **Backend**
+  - Node.js + Express
+  - Mongoose for MongoDB ODM
+  - JSON Web Tokens (JWT) for authentication
+  - bcrypt for password hashing
+  - express-validator for input validation
+
+- **Database**
+  - MongoDB Atlas (managed cloud MongoDB)
+
+- **CI/CD & DevOps**
+  - **Primary CI**: GitHub Actions (linting, build validation)
+  - **Secondary CI (Demonstration)**: Jenkins Pipeline on AWS EC2 (checkout, install, lint, build only)
+  - Environment variables for configuration (no secrets in the repository)
+
+- **Hosting / Cloud**
+  - **Frontend**: Vercel
+  - **Backend**: Render
+  - **Database**: MongoDB Atlas
+
+---
+
+## Project Structure
+
+```text
 project-root/
-├── backend/              # Node.js + Express API
+├── backend/               # Node.js + Express API
 │   ├── src/
-│   │   ├── models/       # MongoDB schemas
-│   │   ├── routes/       # API routes
-│   │   ├── controllers/ # Business logic
-│   │   ├── middleware/  # Auth middleware
-│   │   └── utils/       # ML service
-│   ├── Dockerfile
-│   └── package.json
-├── frontend/             # React application
+│   │   ├── models/        # MongoDB schemas (User, Article, Prediction, Feedback)
+│   │   ├── routes/        # API route definitions
+│   │   ├── controllers/   # Business logic
+│   │   ├── middleware/    # Auth & validation middleware
+│   │   └── utils/         # ML service and helpers
+│   ├── package.json
+│   └── jest.config.js
+├── frontend/              # React application
 │   ├── src/
-│   │   ├── pages/       # React pages
-│   │   ├── services/    # API service
+│   │   ├── pages/         # Login, Register, Dashboard, SubmitArticle, ArticleDetail
+│   │   ├── services/      # Centralized API client (Axios)
+│   │   ├── index.js
 │   │   └── App.js
-│   ├── Dockerfile
 │   └── package.json
-├── ml-model/             # ML model files
-├── docker-compose.yml    # Full-stack orchestration
-├── Jenkinsfile           # CI/CD pipeline
+├── ml-model/              # ML model documentation / sample files
+├── .github/workflows/     # GitHub Actions CI workflow(s)
+├── Jenkinsfile            # Jenkins CI pipeline (CI only, no deployment)
 └── README.md
 ```
 
-## 📊 Database Schema
+---
 
-### User
-- `user_id` (ObjectId)
-- `username` (unique)
-- `email` (unique)
-- `password_hash` (bcrypt)
-- `reputation_score`
-- `created_at`
+## System Architecture
 
-### Article
-- `article_id` (ObjectId)
-- `title`
-- `content`
-- `user_id` (ref User)
-- `published_date`
+### High-Level Architecture (Text Description)
 
-### Prediction
-- `prediction_id` (ObjectId)
-- `article_id` (ref Article)
-- `fake_probability` (0-1)
-- `confidence_score` (0-1)
-- `predicted_at`
+- **Client (Browser / React on Vercel)**
+  - Renders the UI, handles routing, manages local state, and stores JWT in `localStorage`.
+  - Communicates with the backend via HTTPS using a base API URL (e.g., `https://<render-backend>/api`).
 
-### Feedback
-- `feedback_id` (ObjectId)
-- `article_id` (ref Article)
-- `user_id` (ref User)
-- `feedback_type` (accurate/inaccurate/helpful/not_helpful)
-- `created_at`
+- **Backend API (Node.js/Express on Render)**
+  - Exposes REST endpoints under the `/api` prefix:
+    - `/api/auth/*` for authentication.
+    - `/api/articles/*` for article submission and retrieval.
+    - `/api/feedback/*` for user feedback.
+  - Handles authentication, authorization, validation, and business logic.
+  - Interacts with MongoDB Atlas via Mongoose models.
 
-## 🔐 Security Features
+- **Database (MongoDB Atlas)**
+  - Stores collections for:
+    - Users
+    - Articles
+    - Predictions
+    - Feedback
+  - Hosted as a managed cloud database.
 
-1. **Password Hashing**: bcrypt with 10 salt rounds
-2. **JWT Authentication**: Token-based auth with 7-day expiration
-3. **Protected Routes**: Middleware validates JWT on protected endpoints
-4. **Input Validation**: express-validator for request validation
-5. **Environment Variables**: Sensitive data stored in .env files
-6. **Password Exclusion**: Password hashes never exposed in JSON responses
+### Authentication & Authorization
 
-## 🚀 Quick Start
+- Users register and log in via `/api/auth/register` and `/api/auth/login`.
+- Backend issues a signed JWT, which the frontend stores in `localStorage`.
+- Subsequent requests include `Authorization: Bearer <token>` header.
+- Protected routes on the backend use middleware to verify and decode the token.
+
+---
+
+## CI/CD Overview
+
+### GitHub Actions (Primary CI)
+
+- Location: `.github/workflows/ci.yml`
+- **Purpose**: Primary continuous integration pipeline for this repository.
+- **Key responsibilities**:
+  - Trigger on pushes and pull requests to `main`.
+  - Use Node.js 20.x.
+  - Install dependencies in `backend/` and `frontend/` using `npm ci`.
+  - Run ESLint for backend and frontend.
+  - Build the frontend to ensure it compiles successfully.
+- **Scope**: Static checks only (lint + build). No deployment or secrets required.
+
+### Jenkins on AWS EC2 (Secondary / Demonstration CI)
+
+- Location: `Jenkinsfile` at the repository root.
+- Execution environment: Jenkins server (e.g., running on AWS EC2).
+- **Purpose**: Demonstrate Jenkins-based CI concepts for academic/DevOps learning.
+- **Key responsibilities**:
+  - Checkout the repository.
+  - Install backend dependencies using `npm ci`.
+  - Run backend linting (non-blocking: pipeline continues even if lint finds issues).
+  - Install frontend dependencies using `npm ci`.
+  - Run frontend linting (non-blocking).
+  - Build the frontend application using `npm run build`.
+- **Important**:
+  - Jenkins pipeline does **not** perform any deployment.
+  - Jenkins does **not** use Docker or docker-compose.
+  - No cloud credentials are required for the Jenkins job itself.
+
+---
+
+## Deployment
+
+### Frontend (Vercel)
+
+- The React application is deployed to Vercel.
+- Typical deployment flow:
+  - Vercel is connected to the GitHub repository.
+  - On push to the configured branch (e.g., `main`), Vercel:
+    - Checks out the code.
+    - Installs dependencies.
+    - Runs `npm run build`.
+    - Serves the generated static assets.
+- Environment variables (e.g., `REACT_APP_API_URL`) are configured in Vercel project settings.
+
+### Backend (Render)
+
+- The Node.js/Express backend is deployed as a web service on Render.
+- Typical deployment flow:
+  - Render pulls the repository or a specific backend directory.
+  - Installs dependencies with `npm install` / `npm ci`.
+  - Starts the server with the configured start command (e.g., `node src/server.js`).
+- Backend environment variables (e.g., `MONGODB_URI`, `JWT_SECRET`, `PORT`) are configured in Render’s dashboard.
+- The backend exposes its API under `/api/*` and a `/health` endpoint for basic health checks.
+
+### Database (MongoDB Atlas)
+
+- MongoDB Atlas hosts the production database cluster.
+- Connection string (URI) is provided to the backend via environment variables.
+- No database credentials or URIs are committed to the repository.
+
+---
+
+## Monitoring & Logging
+
+- **Render (Backend)**
+  - Provides application logs for each deployment.
+  - Health checks can be configured against the `/health` endpoint.
+  - Logs can be viewed via Render’s web console.
+
+- **Vercel (Frontend)**
+  - Provides build logs and runtime logs for serverless functions (if any).
+  - Deployment status and history are visible in the Vercel dashboard.
+
+- **MongoDB Atlas**
+  - Provides monitoring for cluster metrics, connection statistics, and query performance.
+
+- **No Prometheus/Grafana stack**
+  - Monitoring is intentionally kept cloud-native using platform-provided dashboards and logs.
+
+---
+
+## Local Development
 
 ### Prerequisites
-- Node.js 18+
-- MongoDB (or use Docker)
-- Docker & Docker Compose
-- Jenkins (for CI/CD)
 
-### Local Development
+- Node.js 18+ (LTS recommended)
+- npm (comes with Node.js)
+- A MongoDB Atlas cluster (or local MongoDB instance for development)
 
-#### 1. Backend Setup
+### Backend Setup
+
 ```bash
 cd backend
 npm install
 cp .env.example .env
-# Edit .env with your MongoDB URI and JWT_SECRET
+# Edit .env with your MongoDB Atlas URI, JWT_SECRET, and other settings
 npm start
 ```
 
-#### 2. Frontend Setup
+### Frontend Setup
+
 ```bash
 cd frontend
 npm install
+# For local dev, point API URL to your backend
+echo "REACT_APP_API_URL=http://localhost:5000" > .env.local
 npm start
 ```
 
-#### 3. MongoDB Setup
-```bash
-# Using Docker
-docker run -d -p 27017:27017 --name mongodb mongo:7.0
+### Basic API Endpoints
 
-# Or install MongoDB locally
-```
-
-### Docker Deployment
-
-#### Using Docker Compose (Recommended)
-```bash
-# Build and start all services
-docker-compose up -d --build
-
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
-
-# Stop and remove volumes
-docker-compose down -v
-```
-
-#### Individual Docker Builds
-```bash
-# Backend
-cd backend
-docker build -t fake-news-backend .
-docker run -p 5000:5000 --env-file .env fake-news-backend
-
-# Frontend
-cd frontend
-docker build -t fake-news-frontend .
-docker run -p 3000:80 fake-news-frontend
-```
-
-## 🔄 CI/CD with Jenkins
-
-### Jenkins Setup
-
-1. **Install Jenkins Plugins**:
-   - Docker Pipeline
-   - Docker
-   - Git
-
-2. **Configure Jenkins**:
-   ```bash
-   # Create new Pipeline job
-   # Point to Jenkinsfile in repository
-   # Configure credentials if needed
-   ```
-
-3. **Run Pipeline**:
-   - Jenkins automatically detects Jenkinsfile
-   - Pipeline stages:
-     1. Checkout code
-     2. Install dependencies (backend + frontend)
-     3. Run tests
-     4. Build Docker images
-     5. Deploy containers
-     6. Cleanup old images
-
-### Manual Pipeline Trigger
-```bash
-# In Jenkins UI, click "Build Now"
-# Or use Jenkins CLI
-java -jar jenkins-cli.jar -s http://localhost:8080 build fake-news-detection
-```
-
-## 📡 API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login user
-
-### Articles (Protected)
-- `POST /api/articles` - Submit article for analysis
-- `GET /api/articles` - Get all articles
-- `GET /api/articles/:id` - Get article by ID
-
-### Feedback (Protected)
-- `POST /api/feedback` - Submit feedback
-- `GET /api/feedback/article/:articleId` - Get feedback for article
-
-### Health Check
-- `GET /health` - API health status
-
-## 🤖 ML Model Integration
-
-### Current Implementation
-The platform uses a heuristic-based approach for demonstration. To integrate a real ML model:
-
-1. **Place model files** in `ml-model/` directory
-2. **Update** `backend/src/utils/mlService.js`
-3. **Install ML libraries**:
-   ```bash
-   npm install @huggingface/inference  # For HuggingFace
-   # OR
-   npm install python-shell            # For sklearn pickle
-   ```
-
-### Example Model Integration
-See `ml-model/README.md` for detailed integration examples.
-
-## 🧪 Testing
-
-### Backend Tests
-```bash
-cd backend
-npm test
-```
-
-### Frontend Tests
-```bash
-cd frontend
-npm test
-```
-
-## 📝 Environment Variables
-
-### Backend (.env)
-```env
-MONGODB_URI=mongodb://localhost:27017/fake_news_db
-JWT_SECRET=your-super-secret-jwt-key
-PORT=5000
-NODE_ENV=development
-ML_MODEL_PATH=./ml-model/fake_news_model.pkl
-```
-
-### Frontend
-Create `.env` file:
-```env
-REACT_APP_API_URL=http://localhost:5000/api
-```
-
-## 🎯 Viva Explanation Points
-
-### Security
-1. **bcrypt with Salt**: 10 rounds balance security/performance
-2. **JWT Tokens**: Stateless authentication, 7-day expiration
-3. **Protected Routes**: Middleware validates tokens
-4. **Input Validation**: Prevents injection attacks
-5. **Password Exclusion**: Never expose hashes in responses
-
-### DevOps
-1. **Docker**: Containerization for consistent deployments
-2. **Multi-stage Builds**: Optimized production images
-3. **Docker Compose**: Orchestrates full stack
-4. **Jenkins Pipeline**: Automated CI/CD
-5. **Health Checks**: Service monitoring
-
-### Database Design
-1. **Mongoose ODM**: Type-safe schema definitions
-2. **Indexes**: Optimized queries (email, username, dates)
-3. **References**: Proper relationships between collections
-4. **Validation**: Schema-level data validation
-
-### ML Integration
-1. **Service Layer**: Isolated ML logic
-2. **Async Processing**: Non-blocking predictions
-3. **Fallback**: Graceful error handling
-4. **Extensible**: Easy to swap models
-
-## 🐛 Troubleshooting
-
-### MongoDB Connection Issues
-```bash
-# Check MongoDB is running
-docker ps | grep mongodb
-
-# Check connection string
-echo $MONGODB_URI
-```
-
-### Port Conflicts
-```bash
-# Change ports in docker-compose.yml
-# Or stop conflicting services
-lsof -i :5000  # Check what's using port 5000
-```
-
-### Docker Build Failures
-```bash
-# Clean Docker cache
-docker system prune -a
-
-# Rebuild without cache
-docker-compose build --no-cache
-```
-
-## 📚 Additional Resources
-
-- [MongoDB Documentation](https://docs.mongodb.com/)
-- [Express.js Guide](https://expressjs.com/)
-- [React Documentation](https://react.dev/)
-- [Docker Documentation](https://docs.docker.com/)
-- [Jenkins Pipeline](https://www.jenkins.io/doc/book/pipeline/)
-
-## 📄 License
-
-This project is for academic evaluation purposes.
-
-## 👥 Author
-
-Built for 5th Semester Academic Project - Fake News Detection Platform
+- `POST /api/auth/register` – User registration
+- `POST /api/auth/login` – User login (returns JWT)
+- `POST /api/articles` – Submit article for analysis (protected)
+- `GET /api/articles` – Get all articles (protected)
+- `GET /api/articles/:id` – Get article by ID (protected)
+- `POST /api/feedback` – Submit feedback on an article (protected)
+- `GET /api/feedback/article/:articleId` – Get feedback for an article (protected)
+- `GET /health` – Backend health check
 
 ---
 
-**Note**: This is a production-style implementation optimized for viva explanation. Code clarity and security best practices are prioritized over feature overload.
+## Security Highlights
 
+- **Password hashing**: bcrypt with a suitable number of salt rounds.
+- **JWT authentication**: Stateless auth with token expiry.
+- **Protected routes**: Middleware validates JWT on secured endpoints.
+- **Input validation**: `express-validator` used on critical endpoints.
+- **Sensitive data**: Managed via environment variables; no secrets in the codebase.
+
+---
+
+## Project Links
+
+- **GitHub Repository**: `[Add GitHub repo URL here]`
+- **Frontend (Vercel)**: `[Add Vercel deployment URL here]`
+- **Backend (Render)**: `[Add Render service URL here]`
+
+Replace the placeholders above with actual URLs before submission or deployment.  
+
+---
+
+## License & Academic Note
+
+- This project is intended for academic evaluation and learning purposes.
+- Emphasis is placed on clean architecture, security best practices, and modern CI/CD practices rather than feature completeness.
