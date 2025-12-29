@@ -6,7 +6,7 @@
 
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -47,31 +47,31 @@ api.interceptors.response.use(
 // Auth API
 export const authAPI = {
   register: (username, email, password) =>
-    api.post('/auth/register', { username, email, password }),
+    api.post('/api/auth/register', { username, email, password }),
   
   login: (email, password) =>
-    api.post('/auth/login', { email, password })
+    api.post('/api/auth/login', { email, password })
 };
 
 // Article API
 export const articleAPI = {
   submitArticle: (title, content) =>
-    api.post('/articles', { title, content }),
+    api.post('/api/articles', { title, content }),
   
   getArticles: () =>
-    api.get('/articles'),
+    api.get('/api/articles'),
   
   getArticleById: (id) =>
-    api.get(`/articles/${id}`)
+    api.get(`/api/articles/${id}`)
 };
 
 // Feedback API
 export const feedbackAPI = {
   submitFeedback: (article_id, feedback_type) =>
-    api.post('/feedback', { article_id, feedback_type }),
+    api.post('/api/feedback', { article_id, feedback_type }),
   
   getFeedbackByArticle: (articleId) =>
-    api.get(`/feedback/article/${articleId}`)
+    api.get(`/api/feedback/article/${articleId}`)
 };
 
 export default api;
