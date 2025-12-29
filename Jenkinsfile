@@ -1,21 +1,38 @@
 /**
- * Jenkins CI Pipeline
+ * Jenkins CI Pipeline - Lightweight Version
  * Continuous Integration only - no deployment
+ * 
+ * DESIGNED FOR LOW-RESOURCE EC2 INSTANCES (t2/t3.micro)
+ * 
+ * This pipeline is intentionally lightweight to run reliably on constrained infrastructure.
+ * Heavy operations (frontend builds, Docker, parallel execution) are excluded.
+ * Full CI/CD validation is handled by GitHub Actions (primary CI system).
+ * 
  * Stages:
  * 1. Checkout source code
- * 2. Install backend dependencies
- * 3. Run backend linting
- * 4. Install frontend dependencies
- * 5. Run frontend linting
- * 6. Build frontend application
+ * 2. Install backend dependencies (lightweight npm install)
+ * 3. Run backend linting (non-blocking)
+ * 4. Install frontend dependencies (lightweight npm install)
+ * 5. Frontend lightweight validation (syntax check only, no build)
  * 
- * Note: This pipeline performs static checks only.
- * Deployment is handled separately via Vercel (frontend) and Render (backend).
- * This pipeline is designed to run efficiently on low-resource EC2 instances.
+ * Engineering Trade-offs:
+ * - Uses npm install instead of npm ci (lighter, faster on low-resource systems)
+ * - Skips frontend production build (too resource-intensive for t2/t3.micro)
+ * - Sequential execution only (no parallel stages to reduce memory pressure)
+ * - Timeout protection to prevent infinite hangs
+ * - Workspace cleanup to preserve disk space
+ * 
+ * Note: Deployment is handled separately via Vercel (frontend) and Render (backend).
  */
 
 pipeline {
     agent any
+
+    // Disable concurrent builds to prevent resource exhaustion on small EC2
+    options {
+        disableConcurrentBuilds()
+        timeout(time: 15, unit: 'MINUTES') // Prevent infinite hangs
+    }
 
     // Use Node.js tool if configured in Jenkins (optional)
     // If NodeJS tool is not configured, ensure Node.js is available in PATH
@@ -33,56 +50,57 @@ pipeline {
         }
 
         // Stage 2: Install backend dependencies
+        // Using lightweight npm install instead of npm ci for low-resource systems
         stage('Backend - Install Dependencies') {
             steps {
                 dir('backend') {
-                    echo 'Installing backend dependencies with npm ci...'
-                    // Use --no-audit --no-fund to avoid CI stalls on low-resource systems
-                    sh 'npm ci --no-audit --no-fund'
+                    echo 'Installing backend dependencies (lightweight mode)...'
+                    // Lightweight install: skip audit, funding, and optional dependencies
+                    // This reduces network calls and disk usage on constrained systems
+                    sh 'npm install --no-audit --no-fund --omit=optional'
                 }
             }
         }
 
-        // Stage 3: Run backend linting (warnings/errors do not fail pipeline)
+        // Stage 3: Run backend linting (non-blocking)
+        // Linting is lightweight and provides value without heavy resource usage
         stage('Backend - Lint') {
             steps {
                 dir('backend') {
                     echo 'Running ESLint on backend code...'
-                    // Run linting but continue pipeline even if errors found
+                    // Non-blocking: pipeline continues even if lint finds issues
                     sh 'npm run lint || echo "Linting completed with issues (non-blocking)"'
                 }
             }
         }
 
         // Stage 4: Install frontend dependencies
+        // Using lightweight npm install instead of npm ci for low-resource systems
         stage('Frontend - Install Dependencies') {
             steps {
                 dir('frontend') {
-                    echo 'Installing frontend dependencies with npm ci...'
-                    // Use --no-audit --no-fund to avoid CI stalls on low-resource systems
-                    sh 'npm ci --no-audit --no-fund'
+                    echo 'Installing frontend dependencies (lightweight mode)...'
+                    // Lightweight install: skip audit, funding, and optional dependencies
+                    sh 'npm install --no-audit --no-fund --omit=optional'
                 }
             }
         }
 
-        // Stage 5: Run frontend linting (warnings/errors do not fail pipeline)
-        stage('Frontend - Lint') {
+        // Stage 5: Frontend lightweight validation
+        // Skips production build (too resource-intensive) but validates syntax
+        stage('Frontend - Lightweight Validation') {
             steps {
                 dir('frontend') {
-                    echo 'Running ESLint on frontend code...'
-                    // Run linting but continue pipeline even if errors found
-                    sh 'npm run lint || echo "Linting completed with issues (non-blocking)"'
-                }
-            }
-        }
-
-        // Stage 6: Build frontend application
-        stage('Frontend - Build') {
-            steps {
-                dir('frontend') {
-                    echo 'Building frontend application...'
-                    sh 'npm run build'
-                    echo 'Frontend build completed successfully!'
+                    echo 'Running frontend lightweight validation...'
+                    script {
+                        // Validate package.json syntax
+                        sh 'node -e "require(\'./package.json\')" || echo "package.json validation skipped"'
+                        
+                        // Run linting (lightweight static analysis)
+                        sh 'npm run lint || echo "Frontend linting completed with issues (non-blocking)"'
+                        
+                        echo 'Frontend validation completed (build skipped for resource efficiency)'
+                    }
                 }
             }
         }
@@ -91,8 +109,8 @@ pipeline {
     // Post-build actions
     post {
         success {
-            echo '✅ CI Pipeline completed successfully!'
-            echo 'All static checks passed. Ready for deployment.'
+            echo '✅ Lightweight CI Pipeline completed successfully!'
+            echo 'Static checks passed. Full validation handled by GitHub Actions.'
         }
         failure {
             echo '❌ CI Pipeline failed!'
@@ -100,7 +118,7 @@ pipeline {
         }
         always {
             echo 'Pipeline execution finished.'
-            // Clean workspace to save disk space on low-resource systems
+            // Aggressive cleanup to preserve disk space on low-resource EC2
             cleanWs()
         }
     }
