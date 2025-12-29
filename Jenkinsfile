@@ -38,7 +38,7 @@ pipeline {
             steps {
                 dir('backend') {
                     echo 'Installing backend dependencies with npm ci...'
-                    sh 'npm ci'
+                    sh 'npm ci --no-audit --no-fund'
                 }
             }
         }
@@ -59,7 +59,7 @@ pipeline {
             steps {
                 dir('frontend') {
                     echo 'Installing frontend dependencies with npm ci...'
-                    sh 'npm ci'
+                    sh 'npm ci --no-audit --no-fund'
                 }
             }
         }
