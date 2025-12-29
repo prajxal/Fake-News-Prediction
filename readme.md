@@ -245,11 +245,10 @@ npm start
 
 ## Project Links
 
-- **GitHub Repository**: `[Add GitHub repo URL here]`
-- **Frontend (Vercel)**: `[Add Vercel deployment URL here]`
-- **Backend (Render)**: `[Add Render service URL here]`
+- **GitHub Repository**: `https://github.com/prajxal/Fake-News-Prediction.git`
+- **Frontend (Vercel)**: `http://fake-news-prediction-tau.vercel.app/`
+- **Backend (Render)**: `https://fake-news-prediction-dv8x.onrender.com/`
 
-Replace the placeholders above with actual URLs before submission or deployment.  
 
 ---
 
