@@ -8,9 +8,11 @@
  * 4. Install frontend dependencies
  * 5. Run frontend linting
  * 6. Build frontend
+ * 7. Docker build validation (CI check only, no deployment)
  * 
- * Note: This pipeline performs static checks only.
+ * Note: This pipeline performs static checks and Docker validation only.
  * Deployment is handled separately via Vercel (frontend) and Render (backend).
+ * Docker is used for local development and CI validation, not production deployment.
  */
 
 pipeline {
@@ -80,6 +82,28 @@ pipeline {
                     echo 'Building frontend application...'
                     sh 'npm run build'
                     echo 'Frontend build completed successfully!'
+                }
+            }
+        }
+
+        // Stage 7: Docker - Build Validation (CI only, no deployment)
+        stage('Docker - Build Validation') {
+            steps {
+                echo 'Validating Docker image builds (CI check only)...'
+                script {
+                    // Build backend Docker image to validate Dockerfile
+                    dir('backend') {
+                        sh 'docker build -t fake-news-backend:ci-test .'
+                        echo 'Backend Docker image built successfully'
+                    }
+                    
+                    // Build frontend Docker image to validate Dockerfile
+                    dir('frontend') {
+                        sh 'docker build -t fake-news-frontend:ci-test .'
+                        echo 'Frontend Docker image built successfully'
+                    }
+                    
+                    echo 'Docker build validation completed (images not deployed)'
                 }
             }
         }

@@ -1,34 +1,24 @@
 # Backend Dockerfile
-# Multi-stage build for optimized production image
+# For local development and CI validation only
+# Production deployment uses Render (not Docker)
 
-# Stage 1: Build
-FROM node:18-alpine AS builder
+FROM node:18-alpine
 
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install all dependencies (including devDependencies for local dev)
+RUN npm ci
 
-# Stage 2: Production
-FROM node:18-alpine
-
-WORKDIR /app
-
-# Copy dependencies from builder
-COPY --from=builder /app/node_modules ./node_modules
-
-# Copy application code
+# Copy application source code
 COPY . .
 
 # Expose port
 EXPOSE 5000
 
-# Set environment to production
-ENV NODE_ENV=production
-
-# Start server
-CMD ["node", "src/server.js"]
+# Use npm start (which runs "node src/server.js")
+# Environment variables should be provided at runtime via -e or .env file
+CMD ["npm", "start"]
 

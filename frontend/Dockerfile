@@ -1,5 +1,6 @@
 # Frontend Dockerfile
-# Multi-stage build for optimized production image
+# For local development and CI validation only
+# Production deployment uses Vercel (not Docker)
 
 # Stage 1: Build
 FROM node:18-alpine AS builder
