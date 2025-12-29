@@ -37,7 +37,8 @@ Modern web application for detecting and analysing potentially fake news article
 
 - **CI/CD & DevOps**
   - **Primary CI**: GitHub Actions (linting, build validation)
-  - **Secondary CI (Demonstration)**: Jenkins Pipeline on AWS EC2 (checkout, install, lint, build only)
+  - **Secondary CI (Demonstration)**: Jenkins Pipeline on AWS EC2 (checkout, install, lint, build, Docker validation)
+  - **Containerization**: Docker (for local development and CI validation only; not used in production)
   - Environment variables for configuration (no secrets in the repository)
 
 - **Hosting / Cloud**
@@ -68,6 +69,10 @@ project-root/
 │   │   └── App.js
 │   └── package.json
 ├── ml-model/              # ML model documentation / sample files
+├── backend/
+│   └── Dockerfile         # Docker image for backend (local dev & CI validation only)
+├── frontend/
+│   └── Dockerfile         # Docker image for frontend (local dev & CI validation only)
 ├── .github/workflows/     # GitHub Actions CI workflow(s)
 ├── Jenkinsfile            # Jenkins CI pipeline (CI only, no deployment)
 └── README.md
@@ -134,9 +139,10 @@ project-root/
   - Install frontend dependencies using `npm ci`.
   - Run frontend linting (non-blocking).
   - Build the frontend application using `npm run build`.
+  - Validate Docker image builds (builds images to verify Dockerfiles are correct, but does not deploy).
 - **Important**:
   - Jenkins pipeline does **not** perform any deployment.
-  - Jenkins does **not** use Docker or docker-compose.
+  - Docker build stage is for CI validation only (ensures Dockerfiles are syntactically correct).
   - No cloud credentials are required for the Jenkins job itself.
 
 ---
@@ -199,9 +205,11 @@ project-root/
 - Node.js 18+ (LTS recommended)
 - npm (comes with Node.js)
 - A MongoDB Atlas cluster (or local MongoDB instance for development)
+- Docker (optional, for containerized local development)
 
 ### Backend Setup
 
+**Option 1: Direct Node.js (Recommended for development)**
 ```bash
 cd backend
 npm install
@@ -210,8 +218,16 @@ cp .env.example .env
 npm start
 ```
 
+**Option 2: Docker (Optional)**
+```bash
+cd backend
+docker build -t fake-news-backend .
+docker run -p 5000:5000 --env-file .env fake-news-backend
+```
+
 ### Frontend Setup
 
+**Option 1: Direct Node.js (Recommended for development)**
 ```bash
 cd frontend
 npm install
@@ -219,6 +235,20 @@ npm install
 echo "REACT_APP_API_URL=http://localhost:5000" > .env.local
 npm start
 ```
+
+**Option 2: Docker (Optional)**
+```bash
+cd frontend
+docker build -t fake-news-frontend .
+docker run -p 3000:80 -e REACT_APP_API_URL=http://localhost:5000 fake-news-frontend
+```
+
+### Docker Usage Notes
+
+- **Purpose**: Docker is used for local development support and CI validation only.
+- **Production**: Docker is **NOT** used in production. Frontend is deployed on Vercel, backend on Render.
+- **CI Validation**: Jenkins pipeline includes a Docker build stage to validate Dockerfiles, but does not deploy containers.
+- **No docker-compose**: This project does not use docker-compose for orchestration.
 
 ### Basic API Endpoints
 
