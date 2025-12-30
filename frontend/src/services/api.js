@@ -80,5 +80,11 @@ export const feedbackAPI = {
     api.get(`/api/feedback/article/${articleId}`)
 };
 
+// User API
+export const userAPI = {
+  updateUserProfile: (username) =>
+    api.put('/api/users/me', { username })
+};
+
 export default api;
 

@@ -38,6 +38,13 @@ const Dashboard = () => {
           <h1>Fake News Detection Platform</h1>
           <div className="navbar-actions">
             <span>Welcome, {user.username}</span>
+            <button
+              className="btn btn-primary"
+              style={{ marginRight: '10px', padding: '5px 10px', fontSize: '14px' }}
+              onClick={() => navigate('/profile')}
+            >
+              Profile
+            </button>
             <button className="btn btn-secondary" onClick={handleLogout}>
               Logout
             </button>
@@ -72,7 +79,7 @@ const Dashboard = () => {
               By {article.user?.username} • {new Date(article.published_date).toLocaleDateString()}
             </p>
             <p>{article.content.substring(0, 200)}...</p>
-            
+
             {article.prediction && (
               <div className={`prediction-result ${article.prediction.fake_probability > 0.5 ? 'fake' : 'real'}`}>
                 <h3>
