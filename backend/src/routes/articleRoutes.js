@@ -8,7 +8,7 @@ const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
 const auth = require('../middleware/auth');
-const { submitArticle, getArticles, getArticleById } = require('../controllers/articleController');
+const { submitArticle, getArticles, getArticleById, updateArticle, deleteArticle } = require('../controllers/articleController');
 
 // Validation rules
 const articleValidation = [
@@ -28,6 +28,8 @@ const articleValidation = [
 router.post('/', auth, articleValidation, submitArticle);
 router.get('/', auth, getArticles);
 router.get('/:id', auth, getArticleById);
+router.put('/:id', auth, articleValidation, updateArticle);
+router.delete('/:id', auth, deleteArticle);
 
 module.exports = router;
 

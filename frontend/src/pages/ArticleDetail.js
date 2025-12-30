@@ -8,6 +8,9 @@ const ArticleDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editContent, setEditContent] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,6 +38,42 @@ const ArticleDetail = () => {
     }
   };
 
+  const startEditing = () => {
+    setEditTitle(article.article.title);
+    setEditContent(article.article.content);
+    setIsEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setEditTitle('');
+    setEditContent('');
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      await articleAPI.updateArticle(article.article.article_id, editTitle, editContent);
+      alert('Article updated successfully!');
+      setIsEditing(false);
+      loadArticle(); // Reload to show new data
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to update article');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this article? This action cannot be undone.')) {
+      try {
+        await articleAPI.deleteArticle(article.article.article_id);
+        alert('Article deleted successfully!');
+        navigate('/dashboard');
+      } catch (err) {
+        alert(err.response?.data?.error || 'Failed to delete article');
+      }
+    }
+  };
+
   if (loading) return <div className="container"><p>Loading...</p></div>;
   if (error) return <div className="container"><div className="error">{error}</div></div>;
   if (!article) return <div className="container"><p>Article not found</p></div>;
@@ -56,9 +95,56 @@ const ArticleDetail = () => {
           <p style={{ color: '#666', marginBottom: '20px' }}>
             By {article.article.user?.username} • {new Date(article.article.published_date).toLocaleDateString()}
           </p>
-          <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
-            {article.article.content}
-          </div>
+
+          {!isEditing && (
+            <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
+              <button
+                className="btn btn-primary"
+                onClick={startEditing}
+              >
+                Edit Article
+              </button>
+              <button
+                className="btn"
+                onClick={handleDelete}
+                style={{ backgroundColor: '#dc3545', color: 'white' }}
+              >
+                Delete Article
+              </button>
+            </div>
+          )}
+
+          {isEditing ? (
+            <form onSubmit={handleUpdate} style={{ marginBottom: '20px' }}>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Title:</label>
+                <input
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  style={{ width: '100%', padding: '8px', fontSize: '16px' }}
+                  required
+                />
+              </div>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Content:</label>
+                <textarea
+                  value={editContent}
+                  onChange={(e) => setEditContent(e.target.value)}
+                  style={{ width: '100%', minHeight: '200px', padding: '8px', fontSize: '16px' }}
+                  required
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button type="submit" className="btn btn-primary">Save Changes</button>
+                <button type="button" className="btn btn-secondary" onClick={cancelEditing}>Cancel</button>
+              </div>
+            </form>
+          ) : (
+            <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+              {article.article.content}
+            </div>
+          )}
 
           {article.prediction && (
             <div className={`prediction-result ${article.prediction.fake_probability > 0.5 ? 'fake' : 'real'}`} style={{ marginTop: '30px' }}>

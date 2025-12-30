@@ -48,7 +48,7 @@ api.interceptors.response.use(
 export const authAPI = {
   register: (username, email, password) =>
     api.post('/api/auth/register', { username, email, password }),
-  
+
   login: (email, password) =>
     api.post('/api/auth/login', { email, password })
 };
@@ -57,19 +57,25 @@ export const authAPI = {
 export const articleAPI = {
   submitArticle: (title, content) =>
     api.post('/api/articles', { title, content }),
-  
+
   getArticles: () =>
     api.get('/api/articles'),
-  
+
   getArticleById: (id) =>
-    api.get(`/api/articles/${id}`)
+    api.get(`/api/articles/${id}`),
+
+  updateArticle: (id, title, content) =>
+    api.put(`/api/articles/${id}`, { title, content }),
+
+  deleteArticle: (id) =>
+    api.delete(`/api/articles/${id}`)
 };
 
 // Feedback API
 export const feedbackAPI = {
   submitFeedback: (article_id, feedback_type) =>
     api.post('/api/feedback', { article_id, feedback_type }),
-  
+
   getFeedbackByArticle: (articleId) =>
     api.get(`/api/feedback/article/${articleId}`)
 };

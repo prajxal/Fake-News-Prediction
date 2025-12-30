@@ -4,6 +4,7 @@
  * Protected routes require JWT authentication
  */
 
+const mongoose = require('mongoose');
 const { validationResult } = require('express-validator');
 const Article = require('../models/Article');
 const Prediction = require('../models/Prediction');
@@ -146,5 +147,89 @@ const getArticleById = async (req, res) => {
   }
 };
 
-module.exports = { submitArticle, getArticles, getArticleById };
+/**
+ * Update article
+ * PUT /api/articles/:id
+ * Protected route
+ * Demonstrates Mongoose findByIdAndUpdate
+ */
+const updateArticle = async (req, res) => {
+  try {
+    // Validate input using existing validation rules
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { title, content } = req.body;
+
+    // UPDATE operation: findByIdAndUpdate
+    // Use { new: true } to return the modified document
+    // Use { runValidators: true } to enforce schema validation on update
+    const article = await Article.findByIdAndUpdate(
+      req.params.id,
+      { title, content },
+      { new: true, runValidators: true }
+    );
+
+    if (!article) {
+      return res.status(404).json({ error: 'Article not found' });
+    }
+
+    res.json({
+      message: 'Article updated successfully',
+      article: {
+        article_id: article._id,
+        title: article.title,
+        content: article.content,
+        user: {
+          user_id: article.user_id, // Note: findByIdAndUpdate logic doesn't auto-populate unless chained, but ID is enough for minimal response or we can leave as is
+        },
+        published_date: article.published_date
+      }
+    });
+  } catch (error) {
+    console.error('Update article error:', error);
+    // Return 500 on database or server errors
+    res.status(500).json({ error: 'Server error updating article' });
+  }
+};
+
+/**
+ * Delete article
+ * DELETE /api/articles/:id
+ * Protected route
+ * Demonstrates Mongoose findByIdAndDelete
+ */
+const deleteArticle = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validate MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid article ID format' });
+    }
+
+    // DELETE operation: findByIdAndDelete
+    // This completes CRUD functionality (Create, Read, Update, Delete)
+    const article = await Article.findByIdAndDelete(id);
+
+    if (!article) {
+      return res.status(404).json({ error: 'Article not found' });
+    }
+
+    // Optionally delete related predictions
+    await Prediction.deleteMany({ article_id: article._id });
+
+    res.json({
+      message: 'Article deleted successfully',
+      id: article._id
+    });
+  } catch (error) {
+    console.error('Delete article error:', error);
+    res.status(500).json({ error: 'Server error deleting article' });
+  }
+};
+
+module.exports = { submitArticle, getArticles, getArticleById, updateArticle, deleteArticle };
 
